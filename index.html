@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breathing Simulator</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #cceeff, #e6ffe6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .game-container {
+      text-align: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #3399cc;
+    }
+    #prompt {
+      font-size: 2rem;
+      margin: 2rem 0;
+    }
+    input {
+      padding: 1rem;
+      font-size: 1.5rem;
+      border: 2px solid #99ccff;
+      border-radius: 10px;
+      width: 60%;
+      text-align: center;
+    }
+    .score {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+    .emoji {
+      font-size: 4rem;
+      animation: float 2s infinite ease-in-out;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🧘 Breathing Simulator</h1>
+    <div class="emoji">😌</div>
+    <div id="prompt">Get ready to breathe...</div>
+    <input id="userInput" placeholder="Type 'in' or 'out'..." disabled />
+    <div class="score" id="score"></div>
+
+    <audio id="chillSound" src="https://www.myinstants.com/media/sounds/pop-cat-original-meme.mp3"></audio>
+    <audio id="stressSound" src="https://www.myinstants.com/media/sounds/vine-boom.mp3"></audio>
+  </div>
+
+  <script>
+    const promptEl = document.getElementById('prompt');
+    const inputEl = document.getElementById('userInput');
+    const scoreEl = document.getElementById('score');
+    const chillSound = document.getElementById('chillSound');
+    const stressSound = document.getElementById('stressSound');
+
+    let stage = 0;
+    let expected = '';
+    let timeStarted = 0;
+    let chillScore = 0;
+
+    const prompts = ["in", "out", "in", "out", "in"];
+
+    function nextStage() {
+      if (stage >= prompts.length) {
+        promptEl.innerHTML = `🧘‍♀️ Chill Session Complete!<br/>Final Chill Score: <b>${chillScore} / ${prompts.length}</b><br/>Restarting...`;
+        setTimeout(() => location.reload(), 4000);
+        return;
+      }
+
+      expected = prompts[stage];
+      inputEl.value = '';
+      inputEl.disabled = true;
+      promptEl.innerText = `Breathe ${expected}...`;
+
+      setTimeout(() => {
+        inputEl.disabled = false;
+        inputEl.focus();
+        timeStarted = Date.now();
+      }, 3000);
+    }
+
+    inputEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const typed = inputEl.value.trim().toLowerCase();
+        const timeTaken = (Date.now() - timeStarted) / 1000;
+
+        if (typed === expected && timeTaken >= 2.5 && timeTaken <= 5) {
+          promptEl.innerText = `✅ Chill +1`;
+          chillScore++;
+          chillSound.play();
+        } else {
+          promptEl.innerText = `❌ You're stressed. Breathe slower.`;
+          stressSound.play();
+        }
+
+        scoreEl.innerText = `Chill Score: ${chillScore}`;
+        stage++;
+        setTimeout(nextStage, 2000);
+      }
+    });
+
+    setTimeout(nextStage, 2000);
+  </script>
+</body>
+</html>
